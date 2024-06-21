@@ -33,7 +33,7 @@ Reading tables for: g
 Pushing board: g
 g_images dict:      286,728it [00:09, 28,721it/s]
 g_images:         1,562,466it [01:07, 23,092it/s]
-g params:          1,562466it [01:04, 24,391it/s]
+g params:         1,562,466it [01:04, 24,391it/s]
 g_threads dict:      3,2881it [00:01, 28,477it/s]
 g_threads params: 1,562,466it [00:37, 41,773it/s]
 Done
