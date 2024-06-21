@@ -17,7 +17,7 @@ Asagi schema support only.
 
 ## Benchmarks
 
-Python 3.12.4 can insert 1.56 million 4chan posts, including board, images, threads tables, into SQLite in ~3 minutes.
+Python 3.12.4 can insert 1.56 million 4chan posts, including board, images, and threads tables, into SQLite in ~3 minutes.
 
 <pre>
 Reading tables for: ck
