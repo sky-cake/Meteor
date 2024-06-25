@@ -92,29 +92,22 @@ def get_media_id_to_media_row(csv_path_images):
     return d
 
 
-def get_thread_params(csv_path_threads, csv_path_board):
-    params = []
-
-    d = dict()
+def get_thread_num_to_thread_row(csv_path_threads):
+    thread_num_to_thread_row = dict()
     with open(csv_path_threads, encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in tqdm(reader):
-            d[row['thread_num']] = [row[k] for k in row]
-
-    with open(csv_path_board, encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in tqdm(reader):
-            if row['thread_num'] in d:
-                params.append(d[row['thread_num']])
-
-    return params
+            thread_num_to_thread_row[row['thread_num']] = [row[k] for k in row]
+    return thread_num_to_thread_row
 
 
 def upsert_tables(cursor, board, csv_path_board, csv_path_images, csv_path_threads):
     board_params = []
+    thread_params = []
 
     images_sql = get_images_sql(board)
     media_id_to_media_row = get_media_id_to_media_row(csv_path_images)
+    thread_num_to_thread_row = get_thread_num_to_thread_row(csv_path_threads)
 
     with open(csv_path_board, encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -126,13 +119,15 @@ def upsert_tables(cursor, board, csv_path_board, csv_path_images, csv_path_threa
             row['media_id'] = media_id
             board_params.append([row[k] for k in row if k != 'doc_id'])
 
-    cols = list(BoardRow.model_fields)
-    cols.remove('doc_id')
-    do_upsert_many(cursor, board, cols, 'num', board_params)
+            if row['thread_num'] in thread_num_to_thread_row:
+                thread_params.append(thread_num_to_thread_row[row['thread_num']])
 
-    cols = list(ThreadRow.model_fields)
-    params = get_thread_params(csv_path_threads, csv_path_board)
-    do_upsert_many(cursor, f'{board}_threads', cols, 'thread_num', params)
+    board_cols = list(BoardRow.model_fields)
+    board_cols.remove('doc_id')
+    do_upsert_many(cursor, board, board_cols, 'num', board_params)
+
+    thread_cols = list(ThreadRow.model_fields)
+    do_upsert_many(cursor, f'{board}_threads', thread_cols, 'thread_num', thread_params)
 
 
 def do_upsert(cursor, sql, values, returning):
@@ -144,9 +139,7 @@ def do_upsert_many(cursor: sqlite3.Cursor, table, cols, conflict_col, params):
     sql_cols = ', '.join(cols)
     sql_placeholders = ', '.join(['?'] * len(cols))
     sql_conflict = ', '.join([f'{col}=?' for col in cols])
-
     sql = f"""INSERT INTO `{table}` ({sql_cols}) VALUES ({sql_placeholders}) ON CONFLICT({conflict_col}) DO UPDATE SET {sql_conflict};"""
-
     cursor.executemany(sql, [val + val for val in params])
 
 
@@ -281,5 +274,5 @@ if __name__=='__main__':
     # boards_to_not_export = [] # ['mu']
     # mysql_to_csv(boards_to_not_export)
 
-    # boards_to_import = ['g']
-    # csv_to_sqlite(boards_to_import)
+    boards_to_import = ['g']
+    csv_to_sqlite(boards_to_import)
