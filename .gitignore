@@ -1,5 +1,4 @@
+__pycache__/
 *.csv
 *.db
-*.db-shm
-*.db-wal
-__pycache__/
+*.db-journal
