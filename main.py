@@ -112,7 +112,7 @@ def upsert_tables(cursor, board, csv_path_board, csv_path_images, csv_path_threa
     with open(csv_path_board, encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in tqdm(reader):
-            media_id = None
+            media_id = 0
             if row['media_id'] in media_id_to_media_row:
                 media_id = do_upsert(cursor, images_sql, media_id_to_media_row[row['media_id']], 'media_id')
 
@@ -256,23 +256,23 @@ def create_non_existing_tables(boards):
 
 
 if __name__=='__main__':
-    DB_HOST = '192.168.1.201'
-    DB_USER = ''
-    DB_PASSWORD = ''
-    DB_NAME = 'hayden'
+    DB_HOST = 'localhost'
+    DB_USER = 'root'
+    DB_PASSWORD = 'dreamer'
+    DB_NAME = 'gif_2015'
     DB_PORT = 3306
 
-    DB_SQLITE = '/home/ritual1.db'
+    DB_SQLITE = '/home/dolphin/Documents/backup_wallow/ritual.db'
 
 
 
     ########## Choose what you want to do ###########
 
-    # boards_to_create = ['ck', 'g', 'mu', 't', 'r9k']
+    # boards_to_create = ['gif']
     # create_non_existing_tables(boards_to_create)
 
     # boards_to_not_export = [] # ['mu']
     # mysql_to_csv(boards_to_not_export)
 
-    boards_to_import = ['g']
+    boards_to_import = ['gif']
     csv_to_sqlite(boards_to_import)
